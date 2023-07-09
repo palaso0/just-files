@@ -29,8 +29,6 @@ MIT
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 0.0.1
 
 Add files from Folders to Just File view

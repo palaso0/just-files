@@ -1,8 +1,8 @@
 {
   "name": "just-files",
   "displayName": "Just Files",
-  "description": "Select and work only with the files you will use",
-  "version": "0.0.1",
+  "description": "Select and work just with the files you will use",
+  "version": "0.0.2",
   "publisher": "palaso",
   "icon": "resources/icon.png",
   "repository": {
