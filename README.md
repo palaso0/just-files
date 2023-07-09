@@ -15,10 +15,10 @@ Avoid wasting time looking for a file among a large number of files or directori
 
 ## Demo
 
-![demo](resources/example.gif)
+![demo](https://github.com/palaso0/just-files/blob/7255f0f18abeadbeafe234330ade5739161ec823/resources/example.gif)
 
 ## Views
-![views](resources/package-explorer.png)
+![views](https://github.com/palaso0/just-files/blob/7255f0f18abeadbeafe234330ade5739161ec823/resources/package-explorer.png)
 
 ## License
 
