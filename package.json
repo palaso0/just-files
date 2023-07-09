@@ -3,6 +3,10 @@
   "displayName": "Just Files",
   "description": "A extension for work with only desires files",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/palaso0/just-files.git"
+},
   "engines": {
     "vscode": "^1.79.0"
   },
