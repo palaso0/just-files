@@ -1,5 +1,5 @@
 # Just Files
-## _Use only the files you need!_ 🤠📁
+## _Use just the files you need!_ 🤠📁
 
 Avoid wasting time looking for a file among a large number of files or directories. Just Files helps you to select only the ones you need.
 
