@@ -1,7 +1,7 @@
 {
   "name": "just-files",
   "displayName": "Just Files",
-  "description": "A extension for work with only desires files",
+  "description": "Select and work only with the files you will use",
   "version": "0.0.1",
   "publisher": "palaso",
   "icon": "resources/icon.png",
