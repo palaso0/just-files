@@ -6,8 +6,8 @@ export function activate(context: vscode.ExtensionContext) {
 	const justFilesViewProvider = new JustFilesViewProvider();
 	vscode.window.registerTreeDataProvider('justFilesView', justFilesViewProvider);
 
-	const showDisposable = vscode.commands.registerCommand('just-files.show', (item) => {
-		justFilesViewProvider.addFileItem(item);
+	const showDisposable = vscode.commands.registerCommand('just-files.show', async (item) => {
+		await justFilesViewProvider.addFileItem(item);
 		justFilesViewProvider.refresh();
 	});
 

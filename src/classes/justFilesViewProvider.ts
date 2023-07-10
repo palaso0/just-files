@@ -29,15 +29,14 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
 		}
 	}
 
-	addFileItem(fileItem: FileItem): void {
-		this.hiddenFileItems.some((item) => {
-			if (this.isFileItemWithinParent(fileItem, item) || this.isFileItemWithinParent(item, fileItem)) {
+	async addFileItem(fileItem: FileItem): Promise<void> {
+		const fileItemChildren = await this.getAllChildren(fileItem);
+		fileItemChildren.map((item) => {
+			if(this.existItemInHiddenItems(item)){
 				this.removeHideFileItem(item);
-				this.removeHideFileItem(fileItem);
-				return true;
 			}
-			return false;
 		})
+
 		if (this.existItemInHiddenItems(fileItem)) {
 			this.removeHideFileItem(fileItem);
 		}
@@ -112,5 +111,32 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
 		}
 
 		return false;
+	}
+
+	private getAllChildren = async (fileItem: FileItem): Promise<FileItem[]> => {
+		if (fileItem.isFile) {
+			return []
+		}
+
+		let children: FileItem[] = [];
+		const files = await vscode.workspace.fs.readDirectory(fileItem.resourceUri!);
+
+		for (const [name, type] of files) {
+			const itemPath = vscode.Uri.joinPath(fileItem.resourceUri!, name);
+			const isItemFile = fs.statSync(itemPath.fsPath);
+			const item = new FileItem(
+				name,
+				type === vscode.FileType.Directory ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+				isItemFile.isFile(),
+				itemPath
+			);
+			let itemsArray = [item];
+			if (!item.isFile) {
+				itemsArray = [...itemsArray, ... await this.getAllChildren(item)]
+			}
+			children = [...children, ...itemsArray];
+		}
+
+		return children;
 	}
 }
