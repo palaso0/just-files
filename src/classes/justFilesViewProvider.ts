@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import * as fs from 'fs';
+import * as path from 'path';
 import { FileItem } from './fileItem';
 import { sortItems } from "../helpers";
 
@@ -8,16 +9,47 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
 	readonly onDidChangeTreeData: vscode.Event<FileItem | undefined> = this._onDidChangeTreeData.event;
 
 	private fileItems: FileItem[] = [];
+	private hiddenFileItems: FileItem[] = [];
 
-	addFileItem(item: FileItem): void {
-		const exists = this.fileItems.some((fileItem) => fileItem.label === item.label);
-		if (!exists) {
-			this.fileItems.push(item);
+	addHideFileItem(fileItem: FileItem): void {
+		if (this.existsItemInFileItems(fileItem)) {
+			this.removeFileItem(fileItem)
+			return
+		}
+
+		if (!this.existItemInHiddenItems(fileItem)) {
+			this.hiddenFileItems.push(fileItem);
 		}
 	}
 
-	removeFileItem(item: FileItem): void {
-		const index = this.fileItems.findIndex((fileItem) => fileItem.label === item.label);
+	removeHideFileItem(fileItem: FileItem): void {
+		const index = this.hiddenFileItems.findIndex((item) => item.label === fileItem.label);
+		if (index > -1) {
+			this.hiddenFileItems.splice(index, 1);
+		}
+	}
+
+	addFileItem(fileItem: FileItem): void {
+		this.hiddenFileItems.some((item) => {
+			if (this.isFileItemWithinParent(fileItem, item) || this.isFileItemWithinParent(item, fileItem)) {
+				this.removeHideFileItem(item);
+				this.removeHideFileItem(fileItem);
+				return true;
+			}
+			return false;
+		})
+		if (this.existItemInHiddenItems(fileItem)) {
+			this.removeHideFileItem(fileItem);
+		}
+
+		const isFileItemSonOfArray = this.fileItems.some(item => this.isFileItemWithinParent(fileItem, item));
+		if (!this.existsItemInFileItems(fileItem) && !isFileItemSonOfArray) {
+			this.fileItems.push(fileItem);
+		}
+	}
+
+	removeFileItem(fileItem: FileItem): void {
+		const index = this.fileItems.findIndex((item) => item.label === fileItem.label);
 		if (index > -1) {
 			this.fileItems.splice(index, 1);
 		}
@@ -49,11 +81,36 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
 				isItemFile.isFile(),
 				itemPath
 			);
-			
-			items.push(item);
+
+			if (!this.existItemInHiddenItems(item)) {
+				items.push(item);
+			}
 		}
 		items = sortItems(items);
 
 		return items;
+	}
+
+	private existItemInHiddenItems = (fileItem: FileItem): boolean => {
+		return this.hiddenFileItems.some((item) => item.resourceUri?.fsPath === fileItem.resourceUri?.fsPath);
+	}
+
+	private existsItemInFileItems = (fileItem: FileItem): boolean => {
+		return this.fileItems.some((item) => item.resourceUri?.fsPath === fileItem.resourceUri?.fsPath);
+	}
+
+	private isFileItemWithinParent = (fileItem: FileItem, parentItem: FileItem): boolean => {
+		if (fileItem.resourceUri && parentItem.resourceUri) {
+			const fileItemPath = fileItem.resourceUri.fsPath;
+			const parentItemPath = parentItem.resourceUri.fsPath;
+
+			const relativePath = path.relative(parentItemPath, fileItemPath);
+
+			if (!relativePath.startsWith('..') && !path.isAbsolute(relativePath)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

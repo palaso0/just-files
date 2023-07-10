@@ -12,7 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	const hideDisposable = vscode.commands.registerCommand('just-files.hide', (item) => {
-		justFilesViewProvider.removeFileItem(item);
+		justFilesViewProvider.addHideFileItem(item);
 		justFilesViewProvider.refresh();
 	});
 
@@ -25,22 +25,27 @@ export function activate(context: vscode.ExtensionContext) {
 
 	vscode.workspace.onDidChangeWorkspaceFolders(() => {
 		foldersViewProvider.refresh();
+		justFilesViewProvider.refresh();
 	});
 
 	vscode.workspace.onDidRenameFiles(() => {
 		foldersViewProvider.refresh();
+		justFilesViewProvider.refresh();
 	});
 
 	vscode.workspace.onDidChangeTextDocument(() => {
 		foldersViewProvider.refresh();
+		justFilesViewProvider.refresh();
 	});
 
 	vscode.workspace.onDidCreateFiles(() => {
 		foldersViewProvider.refresh();
+		justFilesViewProvider.refresh();
 	});
 
 	vscode.workspace.onDidDeleteFiles(() => {
 		foldersViewProvider.refresh();
+		justFilesViewProvider.refresh();
 	});
 
 }
