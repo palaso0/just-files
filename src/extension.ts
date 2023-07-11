@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(hideDisposable)
 
 	const foldersViewProvider = new FoldersViewProvider();
-	vscode.window.registerTreeDataProvider('foldersView', foldersViewProvider);
+	vscode.window.registerTreeDataProvider('filesView', foldersViewProvider);
 	vscode.commands.executeCommand('setContext', 'git.decorations.enabled', false);
 
 	vscode.workspace.onDidChangeWorkspaceFolders(() => {

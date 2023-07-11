@@ -2,7 +2,7 @@
   "name": "just-files",
   "displayName": "Just Files",
   "description": "Select and work just with the files you will use",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "palaso",
   "icon": "resources/icon.png",
   "repository": {
@@ -25,8 +25,8 @@
           "name": "Just Files"
         },
         {
-          "id": "foldersView",
-          "name": "Folders"
+          "id": "filesView",
+          "name": "Files"
         }
       ]
     },
@@ -53,7 +53,7 @@
         {
           "command": "just-files.show",
           "group": "inline",
-          "when": "view == foldersView"
+          "when": "view == filesView"
         },
         {
           "command": "just-files.hide",

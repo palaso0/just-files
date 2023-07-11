@@ -32,8 +32,11 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
 	async addFileItem(fileItem: FileItem): Promise<void> {
 		const fileItemChildren = await this.getAllChildren(fileItem);
 		fileItemChildren.map((item) => {
-			if(this.existItemInHiddenItems(item)){
+			if (this.existItemInHiddenItems(item)) {
 				this.removeHideFileItem(item);
+			}
+			if (this.existsItemInFileItems(item)) {
+				this.removeFileItem(item);
 			}
 		})
 
@@ -41,8 +44,14 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
 			this.removeHideFileItem(fileItem);
 		}
 
-		const isFileItemSonOfArray = this.fileItems.some(item => this.isFileItemWithinParent(fileItem, item));
-		if (!this.existsItemInFileItems(fileItem) && !isFileItemSonOfArray) {
+		this.hiddenFileItems.map(item => {
+			if (this.isFileItemWithinParent(fileItem, item)) {
+				this.removeHideFileItem(item);
+			}
+		})
+		const isFileItemSonOfFileItems = this.fileItems.some(item => this.isFileItemWithinParent(fileItem, item));
+
+		if (!this.existsItemInFileItems(fileItem) && !isFileItemSonOfFileItems) {
 			this.fileItems.push(fileItem);
 		}
 	}
@@ -132,7 +141,7 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
 			);
 			let itemsArray = [item];
 			if (!item.isFile) {
-				itemsArray = [...itemsArray, ... await this.getAllChildren(item)]
+				itemsArray = [...itemsArray, ...await this.getAllChildren(item)]
 			}
 			children = [...children, ...itemsArray];
 		}

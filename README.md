@@ -6,10 +6,10 @@ Avoid wasting time looking for a file among a large number of files or directori
 ## How does it work?
 - Install the extension
 - Open one or more folders in your workspace
-- Two new views are displayed: Folders and Just Files
-    - Folders view displays all your files from workspace
+- Two new views are displayed: Files and Just Files
+    - Files view displays all your files from workspace
     - Just Files view displays the files you selected to be displayed
-- In Folders view, click on show icon for add the file to Just Files view
+- In Files view, click on show icon for add the file to Just Files view
 - In Just Files, you can open the files. If you want to remove from the view click in hide icon
 - ✨ Enjoy your files ✨
 
@@ -31,7 +31,7 @@ MIT
 
 ### 0.0.1
 
-Add files from Folders to Just File view
+Add files from Files to Just File view
 
 ---
 
