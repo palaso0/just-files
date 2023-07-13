@@ -2,13 +2,13 @@
   "name": "just-files",
   "displayName": "Just Files",
   "description": "Select and work just with the files you will use",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "palaso",
   "icon": "resources/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/palaso0/just-files.git"
-},
+  },
   "engines": {
     "vscode": "^1.79.0"
   },
@@ -46,9 +46,35 @@
           "light": "resources/light/hideEyeLight.svg",
           "dark": "resources/dark/hideEyeDark.svg"
         }
+      },
+      {
+        "command": "just-files.addItemFromTabMenu",
+        "title": "Add to Just View"
+      },
+      {
+        "command": "just-files.removeItemFromTabMenu",
+        "title": "Remove from Just View"
+      },
+      {
+        "command": "just-files.addTabFromCommand",
+        "title": "Add tab to Just Files"
+      },
+      {
+        "command": "just-files.removeTabFromCommand",
+        "title": "Remove tab from to Just Files"
       }
     ],
     "menus": {
+      "editor/title/context": [
+        {
+          "command": "just-files.addItemFromTabMenu",
+          "group": "z"
+        },
+        {
+          "command": "just-files.removeItemFromTabMenu",
+          "group": "z"
+        }
+      ],
       "view/item/context": [
         {
           "command": "just-files.show",
@@ -59,9 +85,31 @@
           "command": "just-files.hide",
           "group": "inline",
           "when": "view == justFilesView"
+        },
+        {
+          "command": "just-files.show",
+          "when": "view == filesView"
+        },
+        {
+          "command": "just-files.hide",
+          "when": "view == justFilesView"
         }
       ]
-    }
+    },
+    "keybindings": [
+      {
+        "command": "just-files.addTabFromCommand",
+        "key": "ctrl+y",
+        "mac": "cmd+y",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "just-files.removeTabFromCommand",
+        "key": "ctrl+alt+y",
+        "mac": "cmd+alt+y",
+        "when": "editorTextFocus"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

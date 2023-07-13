@@ -1,12 +1,16 @@
 import * as vscode from "vscode";
-import * as fs from 'fs';
-import { FileItem } from './fileItem';
+import * as fs from "fs";
+import { FileItem } from "./fileItem";
 import { sortItems } from "../helpers";
+import { FileItemFactory } from "./fileItemFactoy";
 
 export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
-  private _onDidChangeTreeData: vscode.EventEmitter<FileItem | undefined> = new vscode.EventEmitter<FileItem | undefined>();
-  readonly onDidChangeTreeData: vscode.Event<FileItem | undefined> = this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: vscode.EventEmitter<FileItem | undefined> =
+    new vscode.EventEmitter<FileItem | undefined>();
+  readonly onDidChangeTreeData: vscode.Event<FileItem | undefined> =
+    this._onDidChangeTreeData.event;
 
+  private fileItemFactory = new FileItemFactory();
   refresh(element?: FileItem): void {
     this._onDidChangeTreeData.fire(element);
   }
@@ -20,35 +24,25 @@ export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
     if (!element) {
       const workspaceFolders = vscode.workspace.workspaceFolders || [];
 
-      if (workspaceFolders.length == 1) {
-        const files = await vscode.workspace.fs.readDirectory(workspaceFolders[0].uri);
+      if (workspaceFolders.length === 1) {
+        const files = await vscode.workspace.fs.readDirectory(
+          workspaceFolders[0].uri
+        );
 
-        for (const [name, type] of files) {
-          const itemPath = vscode.Uri.joinPath(workspaceFolders[0].uri, name)
-          const isItemFile = fs.statSync(itemPath.fsPath);
-          const item = new FileItem(
-            name,
-            type === vscode.FileType.Directory ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-            isItemFile.isFile(),
-            vscode.Uri.joinPath(workspaceFolders[0].uri!, name)
-          );
+        for (const [name] of files) {
+          const itemUri = vscode.Uri.joinPath(workspaceFolders[0].uri, name);
+          const item = this.fileItemFactory.createFromUri(itemUri);
           items.push(item);
         }
         items = sortItems(items);
 
         return items;
       }
-      for (const folder of workspaceFolders) {
-        const itemPath = folder.uri
-        const isItemFile = fs.statSync(itemPath.fsPath);
-        const folderItem = new FileItem(
-          folder.name,
-          vscode.TreeItemCollapsibleState.Collapsed,
-          isItemFile.isFile(),
-          folder.uri
-        );
 
-        items.push(folderItem);
+      for (const folder of workspaceFolders) {
+        const itemUri = folder.uri;
+        const item = this.fileItemFactory.createFromUri(itemUri);
+        items.push(item);
       }
 
       items = sortItems(items);
@@ -57,15 +51,9 @@ export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
 
     const files = await vscode.workspace.fs.readDirectory(element.resourceUri!);
 
-    for (const [name, type] of files) {
-      const itemPath = vscode.Uri.joinPath(element.resourceUri!, name)
-      const isItemFile = fs.statSync(itemPath.fsPath);
-      const item = new FileItem(
-        name,
-        type === vscode.FileType.Directory ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-        isItemFile.isFile(),
-        itemPath
-      );
+    for (const [name] of files) {
+      const itemUri = vscode.Uri.joinPath(element.resourceUri!, name);
+      const item = this.fileItemFactory.createFromUri(itemUri);
 
       items.push(item);
     }

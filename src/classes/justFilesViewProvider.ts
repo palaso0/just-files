@@ -1,151 +1,173 @@
 import * as vscode from "vscode";
-import * as fs from 'fs';
-import * as path from 'path';
-import { FileItem } from './fileItem';
+import * as fs from "fs";
+import * as path from "path";
+import { FileItem } from "./fileItem";
 import { sortItems } from "../helpers";
+import { FileItemFactory } from "./fileItemFactoy";
 
-export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> {
-	private _onDidChangeTreeData: vscode.EventEmitter<FileItem | undefined> = new vscode.EventEmitter<FileItem | undefined>();
-	readonly onDidChangeTreeData: vscode.Event<FileItem | undefined> = this._onDidChangeTreeData.event;
+export class JustFilesViewProvider
+  implements vscode.TreeDataProvider<FileItem>
+{
+  private _onDidChangeTreeData: vscode.EventEmitter<FileItem | undefined> =
+    new vscode.EventEmitter<FileItem | undefined>();
+  readonly onDidChangeTreeData: vscode.Event<FileItem | undefined> =
+    this._onDidChangeTreeData.event;
 
-	private fileItems: FileItem[] = [];
-	private hiddenFileItems: FileItem[] = [];
+  private fileItems: FileItem[] = [];
+  private hiddenFileItems: FileItem[] = [];
+  private fileItemFactory = new FileItemFactory();
 
-	addHideFileItem(fileItem: FileItem): void {
-		if (this.existsItemInFileItems(fileItem)) {
-			this.removeFileItem(fileItem)
-			return
-		}
+  addHideFileItem(fileItem: FileItem): void {
+    if (this.existsItemInFileItems(fileItem)) {
+      this.removeFileItem(fileItem);
+      return;
+    }
 
-		if (!this.existItemInHiddenItems(fileItem)) {
-			this.hiddenFileItems.push(fileItem);
-		}
-	}
+    if (!this.existItemInHiddenItems(fileItem)) {
+      this.hiddenFileItems.push(fileItem);
+    }
+  }
 
-	removeHideFileItem(fileItem: FileItem): void {
-		const index = this.hiddenFileItems.findIndex((item) => item.label === fileItem.label);
-		if (index > -1) {
-			this.hiddenFileItems.splice(index, 1);
-		}
-	}
+  removeHideFileItem(fileItem: FileItem): void {
+    const index = this.hiddenFileItems.findIndex(
+      (item) => item.label === fileItem.label
+    );
 
-	async addFileItem(fileItem: FileItem): Promise<void> {
-		const fileItemChildren = await this.getAllChildren(fileItem);
-		fileItemChildren.map((item) => {
-			if (this.existItemInHiddenItems(item)) {
-				this.removeHideFileItem(item);
-			}
-			if (this.existsItemInFileItems(item)) {
-				this.removeFileItem(item);
-			}
-		})
+    if (index > -1) {
+      this.hiddenFileItems.splice(index, 1);
+    }
+  }
 
-		if (this.existItemInHiddenItems(fileItem)) {
-			this.removeHideFileItem(fileItem);
-		}
+  async addFileItem(fileItem: FileItem): Promise<void> {
+    const fileItemChildren = await this.getAllChildren(fileItem);
+    fileItemChildren.map((item) => {
+      if (this.existItemInHiddenItems(item)) {
+        this.removeHideFileItem(item);
+      }
 
-		this.hiddenFileItems.map(item => {
-			if (this.isFileItemWithinParent(fileItem, item)) {
-				this.removeHideFileItem(item);
-			}
-		})
-		const isFileItemSonOfFileItems = this.fileItems.some(item => this.isFileItemWithinParent(fileItem, item));
+      if (this.existsItemInFileItems(item)) {
+        this.removeFileItem(item);
+      }
+    });
 
-		if (!this.existsItemInFileItems(fileItem) && !isFileItemSonOfFileItems) {
-			this.fileItems.push(fileItem);
-		}
-	}
+    if (this.existItemInHiddenItems(fileItem)) {
+      this.removeHideFileItem(fileItem);
+    }
 
-	removeFileItem(fileItem: FileItem): void {
-		const index = this.fileItems.findIndex((item) => item.label === fileItem.label);
-		if (index > -1) {
-			this.fileItems.splice(index, 1);
-		}
-	}
+    this.hiddenFileItems.map((item) => {
+      if (this.isFileItemWithinParent(fileItem, item)) {
+        this.removeHideFileItem(item);
+      }
+    });
+    const isFileItemSonOfFileItems = this.fileItems.some((item) =>
+      this.isFileItemWithinParent(fileItem, item)
+    );
 
-	refresh(element?: FileItem): void {
-		this._onDidChangeTreeData.fire(element);
-	}
+    if (!this.existsItemInFileItems(fileItem) && !isFileItemSonOfFileItems) {
+      this.fileItems.push(fileItem);
+    }
+  }
 
-	getTreeItem(element: FileItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
-		return element;
-	}
+  removeFileItem(fileItem: FileItem): void {
+    const index = this.fileItems.findIndex(
+      (item) => item.label === fileItem.label
+    );
 
-	async getChildren(element?: FileItem): Promise<FileItem[]> {
-		if (!element) {
-			this.fileItems = sortItems(this.fileItems);
-			return this.fileItems;
-		}
+    if (index > -1) {
+      this.fileItems.splice(index, 1);
+    }
+  }
 
-		const files = await vscode.workspace.fs.readDirectory(element.resourceUri!);
-		let items: FileItem[] = [];
+  refresh(element?: FileItem): void {
+    this._onDidChangeTreeData.fire(element);
+  }
 
-		for (const [name, type] of files) {
-			const itemPath = vscode.Uri.joinPath(element.resourceUri!, name);
-			const isItemFile = fs.statSync(itemPath.fsPath);
-			const item = new FileItem(
-				name,
-				type === vscode.FileType.Directory ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-				isItemFile.isFile(),
-				itemPath
-			);
+  getTreeItem(element: FileItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+    return element;
+  }
 
-			if (!this.existItemInHiddenItems(item)) {
-				items.push(item);
-			}
-		}
-		items = sortItems(items);
+  async getChildren(element?: FileItem): Promise<FileItem[]> {
+    if (!element) {
+      this.fileItems = sortItems(this.fileItems);
+      return this.fileItems;
+    }
 
-		return items;
-	}
+    const files = await vscode.workspace.fs.readDirectory(element.resourceUri!);
+    let items: FileItem[] = [];
 
-	private existItemInHiddenItems = (fileItem: FileItem): boolean => {
-		return this.hiddenFileItems.some((item) => item.resourceUri?.fsPath === fileItem.resourceUri?.fsPath);
-	}
+    for (const [name] of files) {
+      const itemPath = vscode.Uri.joinPath(element.resourceUri!, name);
+      const item = this.fileItemFactory.createFromUri(itemPath);
+      if (!this.existItemInHiddenItems(item)) {
+        items.push(item);
+      }
+    }
+    items = sortItems(items);
 
-	private existsItemInFileItems = (fileItem: FileItem): boolean => {
-		return this.fileItems.some((item) => item.resourceUri?.fsPath === fileItem.resourceUri?.fsPath);
-	}
+    return items;
+  }
 
-	private isFileItemWithinParent = (fileItem: FileItem, parentItem: FileItem): boolean => {
-		if (fileItem.resourceUri && parentItem.resourceUri) {
-			const fileItemPath = fileItem.resourceUri.fsPath;
-			const parentItemPath = parentItem.resourceUri.fsPath;
+  private existItemInHiddenItems = (fileItem: FileItem): boolean => {
+    return this.hiddenFileItems.some(
+      (item) => item.resourceUri?.fsPath === fileItem.resourceUri?.fsPath
+    );
+  };
 
-			const relativePath = path.relative(parentItemPath, fileItemPath);
+  private existsItemInFileItems = (fileItem: FileItem): boolean => {
+    return this.fileItems.some(
+      (item) => item.resourceUri?.fsPath === fileItem.resourceUri?.fsPath
+    );
+  };
 
-			if (!relativePath.startsWith('..') && !path.isAbsolute(relativePath)) {
-				return true;
-			}
-		}
+  private isFileItemWithinParent = (
+    fileItem: FileItem,
+    parentItem: FileItem
+  ): boolean => {
+    if (fileItem.resourceUri && parentItem.resourceUri) {
+      const fileItemPath = fileItem.resourceUri.fsPath;
+      const parentItemPath = parentItem.resourceUri.fsPath;
 
-		return false;
-	}
+      const relativePath = path.relative(parentItemPath, fileItemPath);
 
-	private getAllChildren = async (fileItem: FileItem): Promise<FileItem[]> => {
-		if (fileItem.isFile) {
-			return []
-		}
+      if (!relativePath.startsWith("..") && !path.isAbsolute(relativePath)) {
+        return true;
+      }
+    }
 
-		let children: FileItem[] = [];
-		const files = await vscode.workspace.fs.readDirectory(fileItem.resourceUri!);
+    return false;
+  };
 
-		for (const [name, type] of files) {
-			const itemPath = vscode.Uri.joinPath(fileItem.resourceUri!, name);
-			const isItemFile = fs.statSync(itemPath.fsPath);
-			const item = new FileItem(
-				name,
-				type === vscode.FileType.Directory ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-				isItemFile.isFile(),
-				itemPath
-			);
-			let itemsArray = [item];
-			if (!item.isFile) {
-				itemsArray = [...itemsArray, ...await this.getAllChildren(item)]
-			}
-			children = [...children, ...itemsArray];
-		}
+  private getAllChildren = async (fileItem: FileItem): Promise<FileItem[]> => {
+    if (fileItem.isFile) {
+      return [];
+    }
 
-		return children;
-	}
+    let children: FileItem[] = [];
+    const files = await vscode.workspace.fs.readDirectory(
+      fileItem.resourceUri!
+    );
+
+    for (const [name, type] of files) {
+      const itemPath = vscode.Uri.joinPath(fileItem.resourceUri!, name);
+      const item = this.fileItemFactory.createFromUri(itemPath);
+      let itemsArray = [item];
+      if (!item.isFile) {
+        itemsArray = [...itemsArray, ...(await this.getAllChildren(item))];
+      }
+      children = [...children, ...itemsArray];
+    }
+
+    return children;
+  };
+
+  isFileInTreeView(fileItem: FileItem): boolean {
+    if (this.existItemInHiddenItems(fileItem)) {
+      return false;
+    }
+    const isChildOfFileItems = this.fileItems.some((item) =>
+      this.isFileItemWithinParent(fileItem, item)
+    );
+
+    return this.existsItemInFileItems(fileItem) || isChildOfFileItems;
+  }
 }
