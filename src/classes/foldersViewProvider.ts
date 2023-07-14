@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import { FileItem } from "./fileItem";
-import { sortItems } from "../helpers";
 import { FileItemManager } from "./fileItemManager";
 
 export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
@@ -33,9 +32,7 @@ export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
           const item = this.fileItemManager.createFileItem(itemUri);
           items.push(item);
         }
-        items = sortItems(items);
-
-        return items;
+        return this.fileItemManager.sortItems(items);
       }
 
       for (const folder of workspaceFolders) {
@@ -44,8 +41,7 @@ export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
         items.push(item);
       }
 
-      items = sortItems(items);
-      return items;
+      return this.fileItemManager.sortItems(items);
     }
 
     const files = await vscode.workspace.fs.readDirectory(element.resourceUri!);
@@ -57,8 +53,6 @@ export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
       items.push(item);
     }
 
-    items = sortItems(items);
-
-    return items;
+    return this.fileItemManager.sortItems(items);
   }
 }

@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import { FileItem } from "./fileItem";
-import { sortItems } from "../helpers";
 import { FileItemManager } from "./fileItemManager";
 
 export class JustFilesViewProvider
@@ -107,8 +106,7 @@ export class JustFilesViewProvider
 
   async getChildren(element?: FileItem): Promise<FileItem[]> {
     if (!element) {
-      this.displayedFileItems = sortItems(this.displayedFileItems);
-      return this.displayedFileItems;
+      return this.fileItemManager.sortItems(this.displayedFileItems);
     }
 
     const files = await vscode.workspace.fs.readDirectory(element.resourceUri!);
@@ -122,9 +120,7 @@ export class JustFilesViewProvider
         items.push(item);
       }
     }
-    items = sortItems(items);
-
-    return items;
+    return this.fileItemManager.sortItems(items);
   }
 
   private getAllChildren = async (fileItem: FileItem): Promise<FileItem[]> => {
@@ -142,7 +138,8 @@ export class JustFilesViewProvider
       const item = this.fileItemManager.createFileItem(itemPath);
       let itemsArray = [item];
       if (!item.isFile) {
-        itemsArray = [...itemsArray, ...(await this.getAllChildren(item))];
+        const children = await this.getAllChildren(item);
+        itemsArray.push(...children);
       }
       children = [...children, ...itemsArray];
     }
@@ -150,3 +147,5 @@ export class JustFilesViewProvider
     return children;
   };
 }
+
+
