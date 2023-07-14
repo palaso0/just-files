@@ -2,15 +2,15 @@ import * as vscode from "vscode";
 import { JustFilesViewProvider } from "./classes/justFilesViewProvider";
 import { FoldersViewProvider } from "./classes/foldersViewProvider";
 import { FileItem } from "./classes/fileItem";
-import { FileItemFactory } from "./classes/fileItemFactoy";
+import { FileItemManager } from "./classes/fileItemManager";
 
 export function activate(context: vscode.ExtensionContext) {
-  doAll(context);
+  subscribe(context);
 }
 
 export function deactivate() {}
 
-function doAll(context: vscode.ExtensionContext) {
+function subscribe(context: vscode.ExtensionContext) {
   let justFilesSelectedItems: readonly FileItem[] = [];
   let filesSelectedItems: readonly FileItem[] = [];
 
@@ -41,6 +41,7 @@ function doAll(context: vscode.ExtensionContext) {
       justFilesViewProvider.refresh();
     }
   );
+  context.subscriptions.push(disposableShow);
 
   const disposableHide = vscode.commands.registerCommand(
     "just-files.hide",
@@ -63,8 +64,6 @@ function doAll(context: vscode.ExtensionContext) {
       justFilesViewProvider.refresh();
     }
   );
-
-  context.subscriptions.push(disposableShow);
   context.subscriptions.push(disposableHide);
 
   const foldersViewProvider = new FoldersViewProvider();
@@ -75,6 +74,67 @@ function doAll(context: vscode.ExtensionContext) {
   filesTreeView.onDidChangeSelection((event) => {
     filesSelectedItems = event.selection;
   });
+
+  const addFromTabDisponsable = vscode.commands.registerCommand(
+    "just-files.addItemFromTabMenu",
+    async (fileItem) => {
+      const factory = new FileItemManager();
+      const item = factory.createFileItem(fileItem.path);
+      await justFilesViewProvider.addFileItem(item);
+      justFilesViewProvider.refresh();
+    }
+  );
+  context.subscriptions.push(addFromTabDisponsable);
+
+  const removeFromTabDisponsable = vscode.commands.registerCommand(
+    "just-files.removeItemFromTabMenu",
+    async (fileItem) => {
+      const factory = new FileItemManager();
+      const item = factory.createFileItem(fileItem.path);
+      await justFilesViewProvider.removeFileItem(item);
+      justFilesViewProvider.refresh();
+    }
+  );
+  context.subscriptions.push(removeFromTabDisponsable);
+
+  const addFromCommand = vscode.commands.registerCommand(
+    "just-files.addTabFromCommand",
+    async () => {
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor) {
+        const itemUri = activeEditor.document.uri;
+        const factory = new FileItemManager();
+        const item = factory.createFileItem(itemUri);
+        await justFilesViewProvider.addFileItem(item);
+        justFilesViewProvider.refresh();
+      }
+    }
+  );
+  context.subscriptions.push(addFromCommand);
+
+  const removeFromCommand = vscode.commands.registerCommand(
+    "just-files.removeTabFromCommand",
+    async () => {
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor) {
+        const itemUri = activeEditor.document.uri;
+        const factory = new FileItemManager();
+        const item = factory.createFileItem(itemUri);
+        justFilesViewProvider.removeFileItem(item);
+        justFilesViewProvider.refresh();
+      }
+    }
+  );
+  context.subscriptions.push(removeFromCommand);
+
+  const cleanJustView = vscode.commands.registerCommand(
+    "just-files.removeAll",
+    () => {
+      justFilesViewProvider.clean();
+      justFilesViewProvider.refresh();
+    }
+  );
+  context.subscriptions.push(cleanJustView);
 
   vscode.workspace.onDidChangeWorkspaceFolders(() => {
     foldersViewProvider.refresh();
@@ -100,50 +160,4 @@ function doAll(context: vscode.ExtensionContext) {
     foldersViewProvider.refresh();
     justFilesViewProvider.refresh();
   });
-
-  const addFromTabDisponsable = vscode.commands.registerCommand(
-    "just-files.addItemFromTabMenu",
-    async (fileItem) => {
-      const factory = new FileItemFactory();
-      const item = factory.createFromUri(fileItem.path);
-      await justFilesViewProvider.addFileItem(item);
-      justFilesViewProvider.refresh();
-    }
-  );
-  context.subscriptions.push(addFromTabDisponsable);
-
-  const removeFromTabDisponsable = vscode.commands.registerCommand(
-    "just-files.removeItemFromTabMenu",
-    async (fileItem) => {
-      const factory = new FileItemFactory();
-      const item = factory.createFromUri(fileItem.path);
-      await justFilesViewProvider.removeFileItem(item);
-      justFilesViewProvider.refresh();
-    }
-  );
-  context.subscriptions.push(removeFromTabDisponsable);
-
-  const addFromCommand = vscode.commands.registerCommand("just-files.addTabFromCommand", async () => {
-    const activeEditor = vscode.window.activeTextEditor;
-    if (activeEditor) {
-      const itemUri = activeEditor.document.uri;
-      const factory = new FileItemFactory();
-      const item = factory.createFromUri(itemUri);
-      await justFilesViewProvider.addFileItem(item);
-      justFilesViewProvider.refresh();
-    }
-  });
-  context.subscriptions.push(addFromCommand);
-
-  const removeFromCommand = vscode.commands.registerCommand("just-files.removeTabFromCommand", async () => {
-    const activeEditor = vscode.window.activeTextEditor;
-    if (activeEditor) {
-      const itemUri = activeEditor.document.uri;
-      const factory = new FileItemFactory();
-      const item = factory.createFromUri(itemUri);
-      justFilesViewProvider.removeFileItem(item);
-      justFilesViewProvider.refresh();
-    }
-  });
-  context.subscriptions.push(removeFromCommand);
 }

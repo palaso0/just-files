@@ -1,8 +1,7 @@
 import * as vscode from "vscode";
-import * as fs from "fs";
 import { FileItem } from "./fileItem";
 import { sortItems } from "../helpers";
-import { FileItemFactory } from "./fileItemFactoy";
+import { FileItemManager } from "./fileItemManager";
 
 export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
   private _onDidChangeTreeData: vscode.EventEmitter<FileItem | undefined> =
@@ -10,7 +9,7 @@ export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
   readonly onDidChangeTreeData: vscode.Event<FileItem | undefined> =
     this._onDidChangeTreeData.event;
 
-  private fileItemFactory = new FileItemFactory();
+  private fileItemManager = new FileItemManager();
   refresh(element?: FileItem): void {
     this._onDidChangeTreeData.fire(element);
   }
@@ -31,7 +30,7 @@ export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
 
         for (const [name] of files) {
           const itemUri = vscode.Uri.joinPath(workspaceFolders[0].uri, name);
-          const item = this.fileItemFactory.createFromUri(itemUri);
+          const item = this.fileItemManager.createFileItem(itemUri);
           items.push(item);
         }
         items = sortItems(items);
@@ -41,7 +40,7 @@ export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
 
       for (const folder of workspaceFolders) {
         const itemUri = folder.uri;
-        const item = this.fileItemFactory.createFromUri(itemUri);
+        const item = this.fileItemManager.createFileItem(itemUri);
         items.push(item);
       }
 
@@ -53,7 +52,7 @@ export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
 
     for (const [name] of files) {
       const itemUri = vscode.Uri.joinPath(element.resourceUri!, name);
-      const item = this.fileItemFactory.createFromUri(itemUri);
+      const item = this.fileItemManager.createFileItem(itemUri);
 
       items.push(item);
     }

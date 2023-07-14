@@ -18,8 +18,17 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+			"activitybar": [
+				{
+					"id": "just-files-explorer",
+					"title": "Just Files Explorer",
+					"icon": "resources/folder.png"
+				}
+			]
+		},
     "views": {
-      "explorer": [
+      "just-files-explorer": [
         {
           "id": "justFilesView",
           "name": "Just Files"
@@ -28,12 +37,14 @@
           "id": "filesView",
           "name": "Files"
         }
+			],
+      "explorer": [
       ]
     },
     "commands": [
       {
         "command": "just-files.show",
-        "title": "Show",
+        "title": "Add to Just Files",
         "icon": {
           "light": "resources/light/showEyeLight.svg",
           "dark": "resources/dark/showEyeDark.svg"
@@ -41,19 +52,27 @@
       },
       {
         "command": "just-files.hide",
-        "title": "Hide",
+        "title": "Remo from Just Files",
         "icon": {
           "light": "resources/light/hideEyeLight.svg",
           "dark": "resources/dark/hideEyeDark.svg"
         }
       },
       {
+				"command": "just-files.removeAll",
+				"title": "Remove all",
+				"icon": {
+					"light": "resources/light/broomNotFilledLight.svg",
+          "dark": "resources/dark/broomNotFilledDark.svg"
+				}
+			},
+      {
         "command": "just-files.addItemFromTabMenu",
-        "title": "Add to Just View"
+        "title": "Add to Just Files"
       },
       {
         "command": "just-files.removeItemFromTabMenu",
-        "title": "Remove from Just View"
+        "title": "Remove from Just Files"
       },
       {
         "command": "just-files.addTabFromCommand",
@@ -65,6 +84,13 @@
       }
     ],
     "menus": {
+      "view/title": [
+        {
+					"command": "just-files.removeAll",
+					"when": "view == justFilesView",
+					"group": "navigation"
+				}
+      ],
       "editor/title/context": [
         {
           "command": "just-files.addItemFromTabMenu",

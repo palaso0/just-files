@@ -58,4 +58,4 @@ Add files from Files to Just File view
 
 ---
 
-Cover designed by Freepik
+Cover designed by Freepik: www.freepik.com
