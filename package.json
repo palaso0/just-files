@@ -2,7 +2,7 @@
   "name": "just-files",
   "displayName": "Just Files",
   "description": "Select and work just with the files you will use",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "publisher": "palaso",
   "icon": "resources/icon.png",
   "repository": {
@@ -52,7 +52,7 @@
       },
       {
         "command": "just-files.hide",
-        "title": "Remo from Just Files",
+        "title": "Remove from Just Files",
         "icon": {
           "light": "resources/light/hideEyeLight.svg",
           "dark": "resources/dark/hideEyeDark.svg"

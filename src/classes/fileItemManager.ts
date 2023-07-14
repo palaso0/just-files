@@ -43,8 +43,8 @@ export class FileItemManager {
 
   sortItems(items: FileItem[]) {
     return items.sort((a, b) => {
-      const labelA = a.resourceUri?.fsPath;
-      const labelB = b.resourceUri?.fsPath;
+      const labelA = a.resourceUri?.fsPath.toLocaleLowerCase();
+      const labelB = b.resourceUri?.fsPath.toLocaleLowerCase();
 
       if (labelA && labelB) {
         if (a.isFile && !b.isFile) {
