@@ -3,12 +3,14 @@ import { FileItem } from "./fileItem";
 import { FileItemManager } from "./fileItemManager";
 
 export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
-  private _onDidChangeTreeData: vscode.EventEmitter<FileItem | undefined> =
-    new vscode.EventEmitter<FileItem | undefined>();
+  private _onDidChangeTreeData: vscode.EventEmitter<FileItem | undefined> = new vscode.EventEmitter<
+    FileItem | undefined
+  >();
   readonly onDidChangeTreeData: vscode.Event<FileItem | undefined> =
     this._onDidChangeTreeData.event;
 
   private fileItemManager = new FileItemManager();
+
   refresh(element?: FileItem): void {
     this._onDidChangeTreeData.fire(element);
   }
@@ -23,9 +25,7 @@ export class FoldersViewProvider implements vscode.TreeDataProvider<FileItem> {
       const workspaceFolders = vscode.workspace.workspaceFolders || [];
 
       if (workspaceFolders.length === 1) {
-        const files = await vscode.workspace.fs.readDirectory(
-          workspaceFolders[0].uri
-        );
+        const files = await vscode.workspace.fs.readDirectory(workspaceFolders[0].uri);
 
         for (const [name] of files) {
           const itemUri = vscode.Uri.joinPath(workspaceFolders[0].uri, name);

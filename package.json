@@ -2,7 +2,7 @@
   "name": "just-files",
   "displayName": "Just Files",
   "description": "Select and work just with the files you will use",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "palaso",
   "icon": "resources/icon.png",
   "repository": {
@@ -114,11 +114,13 @@
         },
         {
           "command": "just-files.show",
-          "when": "view == filesView"
+          "when": "view == filesView",
+          "group": "default"
         },
         {
           "command": "just-files.hide",
-          "when": "view == justFilesView"
+          "when": "view == justFilesView",
+          "group": "default"
         }
       ]
     },

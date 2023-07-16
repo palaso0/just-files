@@ -17,9 +17,7 @@ export class FileItemManager {
   }
 
   isFileItemInArray(fileItem: FileItem, fileItemArray: FileItem[]): boolean {
-    return fileItemArray.some(
-      (item) => item.resourceUri?.fsPath === fileItem.resourceUri?.fsPath
-    );
+    return fileItemArray.some((item) => item.resourceUri?.fsPath === fileItem.resourceUri?.fsPath);
   }
 
   isChildof(childFileItem: FileItem, parentFileItem: FileItem): boolean {
@@ -34,10 +32,7 @@ export class FileItemManager {
     return false;
   }
 
-  isChildOfArray(
-    childFileItem: FileItem,
-    parentFileItems: FileItem[]
-  ): boolean {
+  isChildOfArray(childFileItem: FileItem, parentFileItems: FileItem[]): boolean {
     return parentFileItems.some((item) => this.isChildof(childFileItem, item));
   }
 
@@ -57,5 +52,17 @@ export class FileItemManager {
 
       return 0;
     });
+  }
+
+  getPathArray(fileItems: FileItem[]): string[] {
+    const paths: string[] = fileItems
+      .map((fileItem) => fileItem.resourceUri?.fsPath)
+      .filter((fsPath): fsPath is string => fsPath !== undefined);
+
+    return paths;
+  }
+
+  fileItemsFromPaths(paths: string[]): FileItem[] {
+    return paths.map((path) => this.createFileItem(path));
   }
 }
