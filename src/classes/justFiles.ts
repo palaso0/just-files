@@ -42,19 +42,20 @@ export class JustFiles {
   }
 
   subscribeShow() {
-    const disposableShow = vscode.commands.registerCommand("just-files.show", async (fileItem) => {
+    const disposableShow = vscode.commands.registerCommand("just-files.show", (fileItem) => {
       const isFileItemInfilesSelectedItems = this.filesSelectedItems.some(
         (item) => item.resourceUri?.path === fileItem.resourceUri.path
       );
       if (this.filesSelectedItems.length > 0 && isFileItemInfilesSelectedItems) {
-        this.filesSelectedItems.map(async (item) => {
-          await this.justFilesViewProvider.addFileItem(item);
+        this.filesSelectedItems.map((item) => {
+          this.justFilesViewProvider.addFileItem(item);
           this.justFilesViewProvider.refresh();
         });
+
         return;
       }
 
-      await this.justFilesViewProvider.addFileItem(fileItem);
+      this.justFilesViewProvider.addFileItem(fileItem);
       this.justFilesViewProvider.refresh();
     });
 
@@ -67,13 +68,13 @@ export class JustFiles {
         (item) => item.resourceUri?.path === fileItem.resourceUri.path
       );
       if (this.justFilesSelectedItems.length > 0 && isFileItemInjustFilesSelectedItems) {
-        this.justFilesSelectedItems.map((item) => {
-          this.justFilesViewProvider.addHideFileItem(item);
+        this.justFilesSelectedItems.map(async (item) => {
+          await this.justFilesViewProvider.addHideFileItem(item);
           this.justFilesViewProvider.refresh();
         });
+
         return;
       }
-
       this.justFilesViewProvider.addHideFileItem(fileItem);
       this.justFilesViewProvider.refresh();
     });
