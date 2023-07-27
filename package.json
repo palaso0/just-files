@@ -2,7 +2,7 @@
   "name": "just-files",
   "displayName": "Just Files",
   "description": "Select and work just with the files you will use",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "palaso",
   "icon": "resources/icon.png",
   "repository": {
@@ -19,14 +19,14 @@
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
-			"activitybar": [
-				{
-					"id": "just-files-explorer",
-					"title": "Just Files Explorer",
-					"icon": "resources/folder.png"
-				}
-			]
-		},
+      "activitybar": [
+        {
+          "id": "just-files-explorer",
+          "title": "Just Files Explorer",
+          "icon": "resources/folder.png"
+        }
+      ]
+    },
     "views": {
       "just-files-explorer": [
         {
@@ -37,9 +37,8 @@
           "id": "filesView",
           "name": "Files"
         }
-			],
-      "explorer": [
-      ]
+      ],
+      "explorer": []
     },
     "commands": [
       {
@@ -59,13 +58,13 @@
         }
       },
       {
-				"command": "just-files.removeAll",
-				"title": "Remove all",
-				"icon": {
-					"light": "resources/light/broomNotFilledLight.svg",
+        "command": "just-files.removeAll",
+        "title": "Remove all",
+        "icon": {
+          "light": "resources/light/broomNotFilledLight.svg",
           "dark": "resources/dark/broomNotFilledDark.svg"
-				}
-			},
+        }
+      },
       {
         "command": "just-files.addItemFromTabMenu",
         "title": "Add to Just Files"
@@ -81,15 +80,26 @@
       {
         "command": "just-files.removeTabFromCommand",
         "title": "Remove tab from to Just Files"
+      },
+      {
+        "command": "just-files.addItemFromExplorer",
+        "title": "Add to Just Files"
       }
     ],
     "menus": {
+      "explorer/context": [
+        {
+          "when": "resourceScheme == 'file' || resourceScheme == 'untitled'",
+          "command": "just-files.addItemFromExplorer",
+          "group": "z"
+        }
+      ],
       "view/title": [
         {
-					"command": "just-files.removeAll",
-					"when": "view == justFilesView",
-					"group": "navigation"
-				}
+          "command": "just-files.removeAll",
+          "when": "view == justFilesView",
+          "group": "navigation"
+        }
       ],
       "editor/title/context": [
         {

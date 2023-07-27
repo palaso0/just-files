@@ -18,51 +18,29 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
-    const displayedPathsConfig = this.context.workspaceState.get("displayed");
-    const displayedPathsConfigValue =
-      displayedPathsConfig && typeof displayedPathsConfig === "string"
-        ? JSON.parse(displayedPathsConfig)
-        : [];
+    const displayedPathsConfig: string[] = this.getPathConfiguration("displayed");
+    const hiddenPathsConfig: string[] = this.getPathConfiguration("hidden");
+    const subDisplayedPathsConfig: string[] = this.getPathConfiguration("subDisplayed");
+    const subHiddenPathsConfig: string[] = this.getPathConfiguration("subDisplayed");
 
-    const hiddenPathsConfig: string[] = this.context.workspaceState.get("hidden") || [];
-    const hiddenPathsConfigValue =
-      hiddenPathsConfig && typeof hiddenPathsConfig === "string"
-        ? JSON.parse(hiddenPathsConfig)
-        : [];
-
-    const subDisplayedPathsConfig = this.context.workspaceState.get("subDisplayed");
-    const subDisplayedPathsConfigValue =
-      subDisplayedPathsConfig && typeof subDisplayedPathsConfig === "string"
-        ? JSON.parse(subDisplayedPathsConfig)
-        : [];
-
-    const subHiddenPathsConfig: string[] = this.context.workspaceState.get("subHidden") || [];
-    const subHiddenPathsConfigValue =
-      subHiddenPathsConfig && typeof subHiddenPathsConfig === "string"
-        ? JSON.parse(subHiddenPathsConfig)
-        : [];
-
-    this.displayedFileItems = this.fileItemManager.fileItemsFromPaths(displayedPathsConfigValue);
-    this.hiddenFileItems = this.fileItemManager.fileItemsFromPaths(hiddenPathsConfigValue);
-    this.subDisplayedFileItems = this.fileItemManager.fileItemsFromPaths(
-      subDisplayedPathsConfigValue
-    );
-    this.subHiddenFileItems = this.fileItemManager.fileItemsFromPaths(subHiddenPathsConfigValue);
+    this.displayedFileItems = this.fileItemManager.fileItemsFromPaths(displayedPathsConfig);
+    this.hiddenFileItems = this.fileItemManager.fileItemsFromPaths(hiddenPathsConfig);
+    this.subDisplayedFileItems = this.fileItemManager.fileItemsFromPaths(subDisplayedPathsConfig);
+    this.subHiddenFileItems = this.fileItemManager.fileItemsFromPaths(subHiddenPathsConfig);
   }
-  addDisplayFileItem(fileItem: FileItem): void {
+
+  private getPathConfiguration(key: string): string[] {
+    const pathConfig: string = this.context.workspaceState.get(key) || "[]";
+    return JSON.parse(pathConfig);
+  }
+
+  private addDisplayFileItem(fileItem: FileItem): void {
     if (!this.fileItemManager.isFileItemInArray(fileItem, this.displayedFileItems)) {
       this.displayedFileItems.push(fileItem);
     }
   }
 
-  addFileItem(fileItem: FileItem): void {
-    if (this.fileItemManager.isChildOfArray(fileItem, this.displayedFileItems)) {
-      this.addSubItem(fileItem);
-      this.removeFileItem(fileItem);
-      this.cleanFileItemChildren(fileItem);
-      return;
-    }
-
+  private addMainNode(fileItem: FileItem): void {
     if (this.fileItemManager.isParentOfArray(fileItem, this.displayedFileItems)) {
       const childreItems = this.displayedFileItems.filter((item) =>
         this.fileItemManager.isChildOf(item, fileItem)
@@ -80,9 +58,64 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
     this.addDisplayFileItem(fileItem);
   }
 
-  addHideFileItem(fileItem: FileItem) {
+  addFileItem(fileItem: FileItem): void {
+    const isChildFile = this.fileItemManager.isChildOfArray(fileItem, this.displayedFileItems);
+    if (!isChildFile) {
+      this.addMainNode(fileItem);
+      return;
+    }
+
+    this.addSubNode(fileItem);
+  }
+
+  private addSubNode(fileItem: FileItem): void {
+    if (this.isSubItemAlreadyDisplayed(fileItem)) {
+      this.cleanFileItemChildren(fileItem);
+
+      return;
+    }
+
+    this.addSubDisplayedItem(fileItem);
+    this.removeHideFileItem(fileItem);
+    this.removeSubHiddenFileItem(fileItem);
+    this.cleanFileItemChildren(fileItem);
+
+    const parent = this.fileItemManager.getParentInArray(fileItem, this.displayedFileItems);
+    if (parent) {
+      const route = this.fileItemManager.getDirectoriesUntilParent(
+        fileItem.resourceUri?.fsPath || "",
+        parent.resourceUri?.fsPath || ""
+      );
+      route.map((path) => {
+        const parentItem = this.fileItemManager.createFileItem(path);
+        let siblings: FileItem[] = this.fileItemManager.getSiblings(parentItem);
+
+        siblings = siblings.filter(
+          (item) =>
+            !this.fileItemManager.isFileItemInArray(item, this.subDisplayedFileItems) &&
+            !this.fileItemManager.isParentOfArray(item, this.subDisplayedFileItems)
+        );
+
+        siblings.map((item) => {
+          const isDisplayed = this.isSubItemAlreadyDisplayed(item);
+          if (!isDisplayed) {
+            this.addSubHiddenFileItem(item);
+          }
+        });
+
+        if (this.fileItemManager.isFileItemInArray(parentItem, this.hiddenFileItems)) {
+          this.removeHideFileItem(parentItem);
+        }
+        this.addSubDisplayedItem(parentItem);
+      });
+    }
+  }
+
+  addHideFileItem(fileItem: FileItem): void {
     if (this.fileItemManager.isFileItemInArray(fileItem, this.displayedFileItems)) {
       this.removeFileItem(fileItem);
+      this.cleanFileItemChildren(fileItem);
+
       return;
     }
 
@@ -95,14 +128,18 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
     }
   }
 
-  addSubDisplayedItem(fileItem: FileItem): void {
+  private addSubDisplayedItem(fileItem: FileItem): void {
+    this.removeSubHiddenFileItem(fileItem);
     if (!this.fileItemManager.isFileItemInArray(fileItem, this.subDisplayedFileItems)) {
       this.subDisplayedFileItems.push(fileItem);
     }
   }
-  addSubHideFileItem(fileItem: FileItem): void {
+
+  private addSubHiddenFileItem(fileItem: FileItem): void {
     if (this.fileItemManager.isFileItemInArray(fileItem, this.subDisplayedFileItems)) {
       this.removeSubFileItem(fileItem);
+      this.cleanFileItemChildren(fileItem);
+
       return;
     }
 
@@ -114,78 +151,28 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
     }
   }
 
-  addSubItem(fileItem: FileItem): void {
-    if (this.isAlreadyDisplayed(fileItem)) {
-      return;
-    }
-
-    this.addSubDisplayedItem(fileItem);
-    this.cleanFileItemChildren(fileItem);
-    if (this.fileItemManager.isFileItemInArray(fileItem, this.hiddenFileItems)) {
-      this.removeHideFileItem(fileItem);
-    }
-
-    if (this.fileItemManager.isFileItemInArray(fileItem, this.subHiddenFileItems)) {
-      this.removeSubHiddenFileItem(fileItem);
-    }
-
-    const parent = this.fileItemManager.getParentInArray(fileItem, this.displayedFileItems);
-    if (parent) {
-      const route = this.fileItemManager.getDirectoriesUntilParent(
-        fileItem.resourceUri?.fsPath || "",
-        parent.resourceUri?.fsPath || ""
-      );
-      let siblings: FileItem[] = [];
-      route.map((path) => {
-        const parentItem = this.fileItemManager.createFileItem(path);
-        siblings.push(...this.fileItemManager.getSiblings(parentItem));
-        if (this.fileItemManager.isFileItemInArray(parentItem, this.hiddenFileItems)) {
-          this.removeHideFileItem(parentItem);
-        }
-        this.addSubDisplayedItem(parentItem);
-      });
-
-      siblings = siblings.filter(
-        (item) =>
-          !this.fileItemManager.isFileItemInArray(item, this.subDisplayedFileItems) &&
-          !this.fileItemManager.isParentOfArray(item, this.subDisplayedFileItems)
-      );
-
-      siblings.map((item) => this.addSubHideFileItem(item));
-    }
+  private cleanFileItemChildren(fileItem: FileItem): void {
+    const hiddenFileItems = [...this.hiddenFileItems];
+    hiddenFileItems.map((hiddenItem) => {
+      if (this.fileItemManager.isChildOf(hiddenItem, fileItem)) {
+        this.removeHideFileItem(hiddenItem);
+      }
+    });
+    const subHiddenFileItems = [...this.subHiddenFileItems];
+    subHiddenFileItems.map((subHiddenItem) => {
+      if (this.fileItemManager.isChildOf(subHiddenItem, fileItem)) {
+        this.removeSubHiddenFileItem(subHiddenItem);
+      }
+    });
+    const subDisplayedFileItems = [...this.subDisplayedFileItems];
+    subDisplayedFileItems.map((subItem) => {
+      if (this.fileItemManager.isChildOf(subItem, fileItem)) {
+        this.removeSubFileItem(subItem);
+      }
+    });
   }
 
-  cleanFileItemChildren(fileItem: FileItem) {
-    if (!fileItem.isFile) {
-      this.hiddenFileItems.map((hiddenItem) => {
-        if (this.fileItemManager.isChildOf(hiddenItem, fileItem)) {
-          this.removeHideFileItem(hiddenItem);
-        }
-      });
-      this.subHiddenFileItems.map((subHiddenItem) => {
-        if (this.fileItemManager.isChildOf(subHiddenItem, fileItem)) {
-          this.removeSubHiddenFileItem(subHiddenItem);
-        }
-      });
-      this.subDisplayedFileItems.map((subItem) => {
-        if (this.fileItemManager.isChildOf(subItem, fileItem)) {
-          this.removeSubFileItem(subItem);
-        }
-      });
-    }
-  }
-
-  isAlreadyDisplayed(fileItem: FileItem): boolean {
-    const isInDisplayedItems: boolean = this.fileItemManager.isFileItemInArray(
-      fileItem,
-      this.displayedFileItems
-    );
-
-    const isInSubDisplayedItems: boolean = this.fileItemManager.isFileItemInArray(
-      fileItem,
-      this.subDisplayedFileItems
-    );
-
+  private isSubItemAlreadyDisplayed(fileItem: FileItem): boolean {
     const isInHiddenItems: boolean = this.fileItemManager.isFileItemInArray(
       fileItem,
       this.hiddenFileItems
@@ -200,22 +187,21 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
       fileItem,
       this.hiddenFileItems
     );
+
     const isChildOfSubHiddenItems: boolean = this.fileItemManager.isChildOfArray(
       fileItem,
       this.subHiddenFileItems
     );
 
-    const resp = !(
+    return !(
       isInHiddenItems ||
       isInSubHiddenItems ||
       isChildOfHiddenItems ||
       isChildOfSubHiddenItems
     );
-
-    return resp;
   }
 
-  removeHideFileItem(fileItem: FileItem) {
+  private removeHideFileItem(fileItem: FileItem): void {
     const index = this.hiddenFileItems.findIndex(
       (item) => item.resourceUri?.fsPath === fileItem.resourceUri?.fsPath
     );
@@ -225,7 +211,7 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
     }
   }
 
-  removeSubHiddenFileItem(fileItem: FileItem): void {
+  private removeSubHiddenFileItem(fileItem: FileItem): void {
     const index = this.subHiddenFileItems.findIndex(
       (item) => item.resourceUri?.fsPath === fileItem.resourceUri?.fsPath
     );
@@ -235,7 +221,7 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
     }
   }
 
-  removeSubFileItem(fileItem: FileItem): void {
+  private removeSubFileItem(fileItem: FileItem): void {
     const index = this.subDisplayedFileItems.findIndex(
       (item) => item.resourceUri?.path === fileItem.resourceUri?.path
     );
@@ -245,7 +231,7 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
     }
   }
 
-  removeFileItem(fileItem: FileItem): void {
+  private removeFileItem(fileItem: FileItem): void {
     const index = this.displayedFileItems.findIndex(
       (item) => item.resourceUri?.path === fileItem.resourceUri?.path
     );

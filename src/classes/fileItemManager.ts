@@ -79,7 +79,7 @@ export class FileItemManager {
     let currentPath = parentPath;
     for (const segment of segments) {
       currentPath = path.join(currentPath, segment);
-      directories.push(currentPath);
+      directories.unshift(currentPath);
     }
 
     return directories;

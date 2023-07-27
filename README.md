@@ -28,6 +28,10 @@ Apart of using the icons, you have many options for add or remove files from Jus
 
 <img src="resources/multipleFiles.png" width="50%" height="50%"/>
 
+- Add files from Explorer
+
+<img src="resources/addFileFromExplorer.png" width="50%" height="50%"/>
+
 - From tab menu:
 
 <img src="resources/menu.png" width="50%" height="50%"/>

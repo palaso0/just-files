@@ -37,6 +37,7 @@ export class JustFiles {
     this.subscribeRemoveFromTab();
     this.subscribeAddFromCommand();
     this.subscribeRemoveFromCommand();
+    this.subscribeAddFromExplorer();
     this.subscribeCleanJustView();
     this.subscribeChanges();
   }
@@ -100,7 +101,7 @@ export class JustFiles {
       async (fileItem) => {
         const factory = new FileItemManager();
         const item = factory.createFileItem(fileItem.path);
-        await this.justFilesViewProvider.removeFileItem(item);
+        this.justFilesViewProvider.addHideFileItem(item);
         this.justFilesViewProvider.refresh();
       }
     );
@@ -133,12 +134,25 @@ export class JustFiles {
           const itemUri = activeEditor.document.uri;
           const factory = new FileItemManager();
           const item = factory.createFileItem(itemUri);
-          this.justFilesViewProvider.removeFileItem(item);
+          this.justFilesViewProvider.addHideFileItem(item);
           this.justFilesViewProvider.refresh();
         }
       }
     );
     this.context.subscriptions.push(removeFromCommand);
+  }
+
+  subscribeAddFromExplorer() {
+    const disposableAddFromExplorer = vscode.commands.registerCommand(
+      "just-files.addItemFromExplorer",
+      (fileItem) => {
+        const factory = new FileItemManager();
+        const item = factory.createFileItem(fileItem.path);
+        this.justFilesViewProvider.addFileItem(item);
+        this.justFilesViewProvider.refresh();
+      }
+    );
+    this.context.subscriptions.push(disposableAddFromExplorer);
   }
 
   subscribeCleanJustView() {
