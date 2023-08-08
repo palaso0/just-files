@@ -2,7 +2,7 @@
   "name": "just-files",
   "displayName": "Just Files",
   "description": "Select and work just with the files you will use",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "publisher": "palaso",
   "icon": "resources/icon.png",
   "repository": {
@@ -37,8 +37,7 @@
           "id": "filesView",
           "name": "Files"
         }
-      ],
-      "explorer": []
+      ]
     },
     "commands": [
       {
@@ -84,6 +83,22 @@
       {
         "command": "just-files.addItemFromExplorer",
         "title": "Add to Just Files"
+      },
+      {
+        "command": "just-files.refreshFiles",
+        "title": "Refresh Files View",
+        "icon": {
+          "light": "resources/light/refreshIconLight.svg",
+          "dark": "resources/dark/refreshIconDark.svg"
+        }
+      },
+      {
+        "command": "just-files.refreshJustFiles",
+        "title": "Refresh JustFiles view",
+        "icon": {
+          "light": "resources/light/refreshIconLight.svg",
+          "dark": "resources/dark/refreshIconDark.svg"
+        }
       }
     ],
     "menus": {
@@ -98,6 +113,16 @@
         {
           "command": "just-files.removeAll",
           "when": "view == justFilesView",
+          "group": "navigation"
+        },
+        {
+          "command": "just-files.refreshJustFiles",
+          "when": "view == justFilesView",
+          "group": "navigation"
+        },
+        {
+          "command": "just-files.refreshFiles",
+          "when": "view == filesView",
           "group": "navigation"
         }
       ],

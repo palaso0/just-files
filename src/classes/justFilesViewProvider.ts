@@ -21,7 +21,7 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
     const displayedPathsConfig: string[] = this.getPathConfiguration("displayed");
     const hiddenPathsConfig: string[] = this.getPathConfiguration("hidden");
     const subDisplayedPathsConfig: string[] = this.getPathConfiguration("subDisplayed");
-    const subHiddenPathsConfig: string[] = this.getPathConfiguration("subDisplayed");
+    const subHiddenPathsConfig: string[] = this.getPathConfiguration("subHidden");
 
     this.displayedFileItems = this.fileItemManager.fileItemsFromPaths(displayedPathsConfig);
     this.hiddenFileItems = this.fileItemManager.fileItemsFromPaths(hiddenPathsConfig);
@@ -288,5 +288,42 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
     }
 
     return this.fileItemManager.sortItems(items);
+  }
+
+  removeItemFromJustFiles(item: FileItem) {
+    this.removeFileItem(item);
+    this.removeHideFileItem(item);
+    this.removeSubFileItem(item);
+    this.removeSubHiddenFileItem(item);
+  }
+
+  removeNotFiles() {
+    const hiddenFileItems = this.hiddenFileItems;
+    hiddenFileItems.map((item) => {
+      if (!this.fileItemManager.isValidUri(item.resourceUri?.fsPath)) {
+        this.removeHideFileItem(item);
+      }
+    });
+
+    const displayedFileItems = this.displayedFileItems;
+    displayedFileItems.map((item) => {
+      if (!this.fileItemManager.isValidUri(item.resourceUri?.fsPath)) {
+        this.removeFileItem(item);
+      }
+    });
+
+    const subHiddenFileItems = this.subHiddenFileItems;
+    subHiddenFileItems.map((item) => {
+      if (!this.fileItemManager.isValidUri(item.resourceUri?.fsPath)) {
+        this.removeSubFileItem(item);
+      }
+    });
+
+    const subDisplayedFileItems = this.subDisplayedFileItems;
+    subDisplayedFileItems.map((item) => {
+      if (!this.fileItemManager.isValidUri(item.resourceUri?.fsPath)) {
+        this.removeSubFileItem(item);
+      }
+    });
   }
 }

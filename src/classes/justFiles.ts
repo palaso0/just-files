@@ -40,6 +40,8 @@ export class JustFiles {
     this.subscribeAddFromExplorer();
     this.subscribeCleanJustView();
     this.subscribeChanges();
+    this.subscribeRefreshFilesView();
+    this.subscribeRefreshJustFilesView();
   }
 
   subscribeShow() {
@@ -163,6 +165,24 @@ export class JustFiles {
     this.context.subscriptions.push(cleanJustView);
   }
 
+  subscribeRefreshFilesView() {
+    const refreshFilesView = vscode.commands.registerCommand("just-files.refreshFiles", () => {
+      this.foldersViewProvider.refresh();
+    });
+    this.context.subscriptions.push(refreshFilesView);
+  }
+
+  subscribeRefreshJustFilesView() {
+    const refreshJustFilesView = vscode.commands.registerCommand(
+      "just-files.refreshJustFiles",
+      () => {
+        this.justFilesViewProvider.removeNotFiles();
+        this.justFilesViewProvider.refresh();
+      }
+    );
+    this.context.subscriptions.push(refreshJustFilesView);
+  }
+
   subscribeChanges() {
     this.justFilesTreeView.onDidChangeSelection((event) => {
       this.justFilesSelectedItems = event.selection;
@@ -192,7 +212,13 @@ export class JustFiles {
       this.justFilesViewProvider.refresh();
     });
 
-    vscode.workspace.onDidDeleteFiles(() => {
+    vscode.workspace.onDidDeleteFiles((item) => {
+      const factory = new FileItemManager();
+      item.files.map((file) => {
+        const removedItem = factory.createFileItem(file.path);
+        this.justFilesViewProvider.removeItemFromJustFiles(removedItem);
+      });
+
       this.foldersViewProvider.refresh();
       this.justFilesViewProvider.refresh();
     });

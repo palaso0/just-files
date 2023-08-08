@@ -2,6 +2,11 @@
 
 ## Release Notes
 
+## [0.3.1]
+
+- Fixed add not valid files to Just Files View.
+- Implemented messages to indicate that a file was not found.
+
 ## [0.3.0]
 
 - Optimized add file engine.

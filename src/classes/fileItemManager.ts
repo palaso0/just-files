@@ -4,16 +4,43 @@ import path = require("path");
 import * as fs from "fs";
 
 export class FileItemManager {
+  isValidUri(uri: vscode.Uri | string | undefined): boolean {
+    if (uri === undefined) {
+      return false;
+    }
+
+    if (typeof uri === "string") {
+      uri = vscode.Uri.parse(uri);
+    }
+
+    const filePath = uri.fsPath;
+
+    return fs.existsSync(filePath);
+  }
+
   createFileItem(uri: vscode.Uri | string): FileItem {
     if (typeof uri === "string") {
       uri = vscode.Uri.parse(uri);
     }
+    const filePath = uri.fsPath;
+
+    if (fs.existsSync(filePath)) {
+      const label = path.basename(uri.fsPath);
+      const isFile = fs.statSync(uri.fsPath).isFile();
+      const collapsibleState = fs.statSync(uri.fsPath).isDirectory()
+        ? vscode.TreeItemCollapsibleState.Collapsed
+        : vscode.TreeItemCollapsibleState.None;
+
+      return new FileItem(label, collapsibleState, isFile, uri);
+    }
     const label = path.basename(uri.fsPath);
-    const isFile = fs.statSync(uri.fsPath).isFile();
-    const collapsibleState = fs.statSync(uri.fsPath).isDirectory()
-      ? vscode.TreeItemCollapsibleState.Collapsed
-      : vscode.TreeItemCollapsibleState.None;
-    return new FileItem(label, collapsibleState, isFile, uri);
+    const isFile = true;
+    const collapsibleState = vscode.TreeItemCollapsibleState.None;
+    const newFileItem = new FileItem(label, collapsibleState, isFile, uri);
+    newFileItem.description = "File not found";
+    newFileItem.tooltip = `'${uri.fsPath}' was not found, click on Refresh icon for remove all invalid files from Just Files`;
+
+    return newFileItem;
   }
 
   fileItemsFromPaths(paths: string[]): FileItem[] {
@@ -51,24 +78,6 @@ export class FileItemManager {
       return resp[0];
     }
     return undefined;
-  }
-
-  getParentRoute(childFileItem: FileItem, parentFileItem: FileItem) {
-    const isChild = childFileItem.resourceUri?.fsPath.includes(
-      parentFileItem.resourceUri?.fsPath || ""
-    );
-    let routes: string[] = [];
-    if (isChild) {
-      const parentUri = this.getParentUri(childFileItem) || "";
-      routes.push(parentUri);
-      if (parentUri && parentUri !== parentFileItem.resourceUri?.fsPath) {
-        routes = [
-          ...routes,
-          ...this.getParentRoute(this.createFileItem(parentUri), parentFileItem),
-        ];
-      }
-    }
-    return routes;
   }
 
   getDirectoriesUntilParent(childPath: string, parentPath: string): string[] {
