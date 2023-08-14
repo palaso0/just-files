@@ -3,6 +3,8 @@
 
 Avoid wasting time looking for a file among a large number of files or directories. Just Files helps you to select only the ones you need.
 
+<img src="resources/FromThisToThis.png" />
+
 ## How does it work?
 - Install the extension
 - Open one or more folders in your workspace
@@ -10,7 +12,11 @@ Avoid wasting time looking for a file among a large number of files or directori
 - Two views are displayed: Files and Just Files
     - `Files` displays all your files from workspace
     - `Just Files` displays the files you selected to be displayed
-- In Files view, click on show icon for add the file to Just Files view
+- Add files to Just Files (review <a href="#addFiles">Add files section</a>):
+    - In your explorer, right click on item and click on 'Add to Just Files'
+    - In Files view, click on show icon for add the file to Just Files view.
+    - In tab, right click on item tab and click on 'Add to Just Files'
+    - Use the command `"cmd"+"y"`
 - In Just Files, you can open the files. If you want to remove from the view click on hide icon
 - ✨ Enjoy your files ✨
 
@@ -22,15 +28,16 @@ Avoid wasting time looking for a file among a large number of files or directori
 
 <img src="resources/package-explorer.png" />
 
-## Features
-Apart of using the icons, you have many options for add or remove files from Just Files View <span style="color:green">(They doesn't delete your files in real life)</span>
-- Select multiple files and select the menu (You can click on one icon too):
-
-<img src="resources/multipleFiles.png" width="50%" height="50%"/>
+## <p id="addFiles">Add files</p>
+Apart of using the icons, you have many options for add or remove files from Just Files View:
 
 - Add files from Explorer
 
 <img src="resources/addFileFromExplorer.png" width="50%" height="50%"/>
+
+- Select multiple files and select the menu (You can click on one icon too):
+
+<img src="resources/multipleFiles.png" width="50%" height="50%"/>
 
 - From tab menu:
 

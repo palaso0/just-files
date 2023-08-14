@@ -2,6 +2,10 @@
 
 ## Release Notes
 
+## [1.0.0] Official Release! 🚀
+- Added description for empty views.
+- Update README.md.
+
 ## [0.3.2]
 
 - Fixed refresh Just Files View only cleans one file.

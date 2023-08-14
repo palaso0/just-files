@@ -2,7 +2,7 @@
   "name": "just-files",
   "displayName": "Just Files",
   "description": "Select and work just with the files you will use",
-  "version": "0.3.2",
+  "version": "1.0.0",
   "publisher": "palaso",
   "icon": "resources/icon.png",
   "repository": {
@@ -40,6 +40,16 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "justFilesView",
+        "contents": "No files added"
+      },
+      {
+        "view": "filesView",
+        "contents": "No files in the workspace"
+      }
+    ],
     "commands": [
       {
         "command": "just-files.show",
