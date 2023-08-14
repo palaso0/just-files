@@ -298,28 +298,28 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
   }
 
   removeNotFiles() {
-    const hiddenFileItems = this.hiddenFileItems;
+    const hiddenFileItems = [...this.hiddenFileItems];
     hiddenFileItems.map((item) => {
       if (!this.fileItemManager.isValidUri(item.resourceUri?.fsPath)) {
         this.removeHideFileItem(item);
       }
     });
 
-    const displayedFileItems = this.displayedFileItems;
+    const displayedFileItems = [...this.displayedFileItems];
     displayedFileItems.map((item) => {
       if (!this.fileItemManager.isValidUri(item.resourceUri?.fsPath)) {
         this.removeFileItem(item);
       }
     });
 
-    const subHiddenFileItems = this.subHiddenFileItems;
+    const subHiddenFileItems = [...this.subHiddenFileItems];
     subHiddenFileItems.map((item) => {
       if (!this.fileItemManager.isValidUri(item.resourceUri?.fsPath)) {
-        this.removeSubFileItem(item);
+        this.removeSubHiddenFileItem(item);
       }
     });
 
-    const subDisplayedFileItems = this.subDisplayedFileItems;
+    const subDisplayedFileItems = [...this.subDisplayedFileItems];
     subDisplayedFileItems.map((item) => {
       if (!this.fileItemManager.isValidUri(item.resourceUri?.fsPath)) {
         this.removeSubFileItem(item);

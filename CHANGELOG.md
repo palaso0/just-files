@@ -2,6 +2,10 @@
 
 ## Release Notes
 
+## [0.3.2]
+
+- Fixed refresh Just Files View only cleans one file.
+
 ## [0.3.1]
 
 - Fixed add not valid files to Just Files View.

@@ -2,7 +2,7 @@
   "name": "just-files",
   "displayName": "Just Files",
   "description": "Select and work just with the files you will use",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "publisher": "palaso",
   "icon": "resources/icon.png",
   "repository": {
@@ -23,7 +23,8 @@
         {
           "id": "just-files-explorer",
           "title": "Just Files Explorer",
-          "icon": "resources/folder.png"
+          "icon": "resources/folder.png",
+          "order": 2
         }
       ]
     },
