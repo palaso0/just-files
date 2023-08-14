@@ -33,7 +33,7 @@ Apart of using the icons, you have many options for add or remove files from Jus
 
 - Add files from Explorer
 
-<img src="resources/addFileFromExplorer.png" width="50%" height="50%"/>
+<img src="resources/addFileFromExplorer.png"/>
 
 - Select multiple files and select the menu (You can click on one icon too):
 
