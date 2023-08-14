@@ -14,7 +14,7 @@ Avoid wasting time looking for a file among a large number of files or directori
     - `Just Files` displays the files you selected to be displayed
 - Add files to Just Files (review <a href="#addFiles">Add files section</a>):
     - In your explorer, right click on item and click on 'Add to Just Files'
-    - In Files view, click on show icon for add the file to Just Files view.
+    - In Files view, click on show icon for add the file to Just Files view
     - In tab, right click on item tab and click on 'Add to Just Files'
     - Use the command `"cmd"+"y"`
 - In Just Files, you can open the files. If you want to remove from the view click on hide icon
