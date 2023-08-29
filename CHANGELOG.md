@@ -2,6 +2,9 @@
 
 ## Release Notes
 
+## [1.0.2] Official Release! 🚀
+- Fixed error cannot find module for Linux SO.
+
 ## [1.0.0] Official Release! 🚀
 - Added description for empty views.
 - Update README.md.
