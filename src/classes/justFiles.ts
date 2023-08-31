@@ -3,6 +3,7 @@ import { FileItem } from "./fileItem";
 import { JustFilesViewProvider } from "./justFilesViewProvider";
 import { FoldersViewProvider } from "./foldersViewProvider";
 import { FileItemManager } from "./fileItemManager";
+import { JustFilesDragAndDropController } from './justFilesDragAndDropController';
 
 export class JustFiles {
   private context: vscode.ExtensionContext;
@@ -15,14 +16,18 @@ export class JustFiles {
 
   justFilesTreeView: vscode.TreeView<FileItem>;
   filesTreeView: vscode.TreeView<FileItem>;
+  dndController: JustFilesDragAndDropController;
+
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
     this.justFilesViewProvider = new JustFilesViewProvider(context);
     this.foldersViewProvider = new FoldersViewProvider();
+    this.dndController = new JustFilesDragAndDropController();
 
     this.justFilesTreeView = vscode.window.createTreeView("justFilesView", {
       treeDataProvider: this.justFilesViewProvider,
       canSelectMany: true,
+      dragAndDropController: this.dndController,
     });
     this.filesTreeView = vscode.window.createTreeView("filesView", {
       treeDataProvider: this.foldersViewProvider,
@@ -38,6 +43,7 @@ export class JustFiles {
     this.subscribeAddFromCommand();
     this.subscribeRemoveFromCommand();
     this.subscribeAddFromExplorer();
+    this.subscribeAddFromDrop();
     this.subscribeCleanJustView();
     this.subscribeChanges();
     this.subscribeRefreshFilesView();
@@ -181,6 +187,12 @@ export class JustFiles {
       }
     );
     this.context.subscriptions.push(refreshJustFilesView);
+  }
+
+  subscribeAddFromDrop() {
+    const factory = new FileItemManager();
+    this.dndController.init(factory, this.justFilesViewProvider);
+    this.context.subscriptions.push(this.dndController);
   }
 
   subscribeChanges() {
