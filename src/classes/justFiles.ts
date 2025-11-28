@@ -3,6 +3,7 @@ import { FileItem } from "./fileItem";
 import { JustFilesViewProvider } from "./justFilesViewProvider";
 import { FoldersViewProvider } from "./foldersViewProvider";
 import { FileItemManager } from "./fileItemManager";
+import { JustFilesDragAndDropController } from "./justFilesDragAndDropController";
 
 export class JustFiles {
   private context: vscode.ExtensionContext;
@@ -23,6 +24,7 @@ export class JustFiles {
     this.justFilesTreeView = vscode.window.createTreeView("justFilesView", {
       treeDataProvider: this.justFilesViewProvider,
       canSelectMany: true,
+      dragAndDropController: new JustFilesDragAndDropController(this.justFilesViewProvider),
     });
     this.filesTreeView = vscode.window.createTreeView("filesView", {
       treeDataProvider: this.foldersViewProvider,

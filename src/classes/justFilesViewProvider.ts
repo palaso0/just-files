@@ -267,9 +267,29 @@ export class JustFilesViewProvider implements vscode.TreeDataProvider<FileItem> 
     return element;
   }
 
+  private createDropPlaceholder(): FileItem {
+    const placeholder = new FileItem(
+      "",
+      vscode.TreeItemCollapsibleState.None,
+      false,
+      undefined
+    );
+    placeholder.iconPath = new vscode.ThemeIcon("blank");
+    placeholder.command = undefined;
+    return placeholder;
+  }
+  
+  public isDropPlaceholder(item: FileItem): boolean {
+    return !item.resourceUri && item.label === "";
+  }
+
   async getChildren(element?: FileItem): Promise<FileItem[]> {
     if (!element) {
-      return this.fileItemManager.sortItems(this.displayedFileItems);
+      const items = this.fileItemManager.sortItems(this.displayedFileItems);
+      if (items.length === 0) {
+        return [this.createDropPlaceholder()];
+      }
+      return items;
     }
 
     const files = await vscode.workspace.fs.readDirectory(element.resourceUri!);
