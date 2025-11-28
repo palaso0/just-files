@@ -3,7 +3,7 @@
 
 Avoid wasting time looking for a file among a large number of files or directories. Just Files helps you to select only the ones you need.
 
-<img src="resources/FromThisToThis.png" />
+<img src="https://github.com/palaso0/just-files/raw/main/resources/FromThisToThis.png" />
 
 ## How does it work?
 - Install the extension
@@ -13,6 +13,7 @@ Avoid wasting time looking for a file among a large number of files or directori
     - `Files` displays all your files from workspace
     - `Just Files` displays the files you selected to be displayed
 - Add files to Just Files (review <a href="#addFiles">Add files section</a>):
+    - Drag and drop files directly into the Just Files view
     - In your explorer, right click on item and click on 'Add to Just Files'
     - In Files view, click on show icon for add the file to Just Files view
     - In tab, right click on item tab and click on 'Add to Just Files'
@@ -22,26 +23,26 @@ Avoid wasting time looking for a file among a large number of files or directori
 
 ## Demo
 
-<img src="resources/example.gif" />
+<img src="https://github.com/palaso0/just-files/raw/main/resources/example.gif" />
 
 ## Views
 
-<img src="resources/package-explorer.png" />
+<img src="https://github.com/palaso0/just-files/raw/main/resources/package-explorer.png" />
 
 ## <p id="addFiles">Add files</p>
 Apart of using the icons, you have many options for add or remove files from Just Files View:
 
 - Add files from Explorer
 
-<img src="resources/addFileFromExplorer.png"/>
+<img src="https://github.com/palaso0/just-files/raw/main/resources/addFileFromExplorer.png"/>
 
 - Select multiple files and select the menu (You can click on one icon too):
 
-<img src="resources/multipleFiles.png" width="50%" height="50%"/>
+<img src="https://github.com/palaso0/just-files/raw/main/resources/multipleFiles.png" width="50%" height="50%"/>
 
 - From tab menu:
 
-<img src="resources/menu.png" width="50%" height="50%"/>
+<img src="https://github.com/palaso0/just-files/raw/main/resources/menu.png" width="50%" height="50%"/>
 
 - Use commands:
 

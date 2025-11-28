@@ -8,3 +8,9 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+resources/example.gif
+resources/FromThisToThis.png
+resources/package-explorer.png
+resources/addFileFromExplorer.png
+resources/multipleFiles.png
+resources/menu.png
