@@ -10,7 +10,7 @@ export class FileItemManager {
     }
 
     if (typeof uri === "string") {
-      uri = vscode.Uri.parse(uri);
+      uri = vscode.Uri.file(uri);
     }
 
     const filePath = uri.fsPath;
@@ -20,7 +20,7 @@ export class FileItemManager {
 
   createFileItem(uri: vscode.Uri | string): FileItem {
     if (typeof uri === "string") {
-      uri = vscode.Uri.parse(uri);
+      uri = vscode.Uri.file(uri);
     }
     const filePath = uri.fsPath;
 
